@@ -64,6 +64,10 @@ class Memory:
 class KnowledgeBase:
     def __init__(self, cfg):
         import faiss
+        import torch
+        torch.set_num_threads(2)
+        faiss.omp_set_num_threads(2)
+        print("Loading embedding model", flush=True)
         from sentence_transformers import SentenceTransformer
         self.cfg = cfg
         self.embedder = SentenceTransformer(cfg["embedding_model"], device="cpu")
@@ -113,6 +117,7 @@ class Assistant:
         self.cfg = cfg or config()
         self.lock = threading.Lock()
         self.kb = KnowledgeBase(self.cfg)
+        print("Retrieval index ready; loading tokenizer and GGUF", flush=True)
         self.tokenizer = AutoTokenizer.from_pretrained(self.cfg["llm_model"])
         model_path = hf_hub_download(repo_id="Qwen/Qwen2.5-1.5B-Instruct-GGUF", filename="qwen2.5-1.5b-instruct-q4_k_m.gguf")
         self.model = Llama(model_path=model_path, n_ctx=2048, n_threads=2, n_batch=128, verbose=False, seed=self.cfg["seed"])
@@ -120,6 +125,7 @@ class Assistant:
             result = self.model(payload["prompt"], max_tokens=160, temperature=payload["temperature"], top_p=0.9, stop=["<|im_end|>", "<|endoftext|>"], echo=False)
             return result["choices"][0]
         self.llm = RunnableLambda(generate)
+        print("Assistant ready", flush=True)
 
     def truncate(self, text, tokens):
         ids = self.tokenizer.encode(text, add_special_tokens=False)
