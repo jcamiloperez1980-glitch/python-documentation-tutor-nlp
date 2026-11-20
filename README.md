@@ -1,12 +1,16 @@
 # Python Documentation Tutor
 
-Academic prototype: Qwen2.5-1.5B-Instruct, MiniLM embeddings, FAISS retrieval, LangChain and Streamlit.
+Academic prototype: Qwen2.5-1.5B-Instruct GGUF Q4_K_M via llama-cpp-python (CPU), MiniLM embeddings, FAISS retrieval, LangChain RunnableLambda and Streamlit.
+
+Public app: https://python-documentation-tutor-nlp.streamlit.app
 
 The deployable app embeds a compressed snapshot of four public Python 3.12 tutorial chapters and reconstructs its configuration and corpus on startup. There are no API keys or campus documents.
 
 Run: pip install -r requirements.txt; streamlit run app.py. Python 3.12. First question downloads models.
 
-Cloud validation is in progress. Existing evaluation records identify four answers needing correction. Do not treat retrieval hits as factual accuracy or local tests as hosting evidence.
+Cloud smoke test on 20 November 2026: the dictionary question returned an answer with retrieved evidence. The follow-up incorrectly recommended items() for keys alone; this is a known factual limitation. A more explicit evidence-selection prompt was published and requires retesting. Full 12-case evaluation of this GGUF deployment and independent user feedback remain pending. Earlier BF16/0.5B results do not validate this configuration. Do not treat retrieval hits as factual accuracy or local tests as hosting evidence.
+
+Deployment settings: Python 3.12, 2048-token llama context, up to 160 generated tokens, 2 CPU threads, n_batch=128. The embedded config's historical max_new_tokens=120 belongs to the earlier Transformers implementation; the deployment generator currently uses 160. Temperature 0.0 is greedy. First question downloads models and builds/reuses the FAISS index. No IBM credential is claimed by this repository.
 
 Conversations use isolated RAM sessions by default. Optional SQLite persistence requires consent. Do not enter private information. Anyone with a resume code may access that saved conversation. Cloud disk is not a guaranteed archive.
 
